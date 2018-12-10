@@ -1,10 +1,10 @@
-Package: rtopvisor
+Package: rcomagic
 Title: What the Package Does (one line, title case)
 Version: 0.0.0.9000
-Authors@R: person("First", "Last", email = "first.last@example.com", role = c("aut", "cre"))
-Description: What the package does (one paragraph).
+Authors@R: person("grkhr","grkhr", email = "eduardgorkh@gmail.com", role = c("aut", "cre"))
+Description: Get Calls from CoMagic.
 Depends: R (>= 3.5.1)
 License: What license is it under?
-Encoding: UTF-8
 LazyData: true
+Encoding: UTF-8
 RoxygenNote: 6.1.0.9000

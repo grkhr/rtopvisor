@@ -146,6 +146,7 @@ TopVisorPos <- function (user_id = NULL, token = NULL, project_id = NULL, date1 
   #  regions$region_key <- as.integer(regions$region_key)
   result <-merge.data.frame(result, regions, by = c("region_index"))
   result$position <- gsub("--",NA,result$position)
+  packageStartupMessage("",appendLF = T)
   packageStartupMessage(" Processed ",length(result$position)," rows", appendLF = T)
   return(result)
   

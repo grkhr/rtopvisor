@@ -57,6 +57,7 @@ TopVisorKeywords <- function (user_id = NULL, token = NULL, project_id = NULL)
   column_names <- unlist(lapply(c(names(dataRaw[[1]])), 
                                 function(x) return(x)))
   colnames(result) <- column_names
+  packageStartupMessage("",appendLF = T)
   packageStartupMessage(" Processed ",length(result$id)," rows", appendLF = T)
   return(result)
   

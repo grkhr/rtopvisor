@@ -134,6 +134,7 @@ TopVisorVol <- function (user_id = NULL, token = NULL, project_id = NULL)
   
   column_names <- c("id","name","group_id","group_name","volume","region_name","searcher_name")
   colnames(result) <- column_names
+  packageStartupMessage("",appendLF = T)
   packageStartupMessage(" Processed ",length(result$id)," rows", appendLF = T)
   
  return(result)
