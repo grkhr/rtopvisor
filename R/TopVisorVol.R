@@ -84,6 +84,7 @@ TopVisorVol <- function (user_id = NULL, token = NULL, project_id = NULL)
   groups_list <- as.list(unlist(groups$id))
   groups <- rbind(groups,c("666","All Groups"))
   
+  packageStartupMessage("Processing", appendLF = F)
   
   #VOLUME
   result <- data.frame(stringsAsFactors = F)
@@ -122,6 +123,8 @@ TopVisorVol <- function (user_id = NULL, token = NULL, project_id = NULL)
             result <- rbind(result, c(unlist(rows[rows_i]),regions_keys$region_name[[i]],searchers$searcher_name[[ii]]), stringsAsFactors = F)
           }
         }
+        packageStartupMessage(".", appendLF = F)
+        
       }
     }
   }
@@ -131,6 +134,7 @@ TopVisorVol <- function (user_id = NULL, token = NULL, project_id = NULL)
   
   column_names <- c("id","name","group_id","group_name","volume","region_name","searcher_name")
   colnames(result) <- column_names
-
+  packageStartupMessage(" Processed ",length(result$id)," rows", appendLF = T)
+  
  return(result)
 }

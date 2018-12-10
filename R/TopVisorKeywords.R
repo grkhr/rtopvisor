@@ -22,6 +22,8 @@ TopVisorKeywords <- function (user_id = NULL, token = NULL, project_id = NULL)
   offset = 0
   ldr = 3
   result <- data.frame(stringsAsFactors = F)
+  packageStartupMessage("Processing", appendLF = F)
+  
   while (ldr==3)
   {
     
@@ -49,10 +51,13 @@ TopVisorKeywords <- function (user_id = NULL, token = NULL, project_id = NULL)
         result <- rbind(result, unlist(rows[rows_i]), stringsAsFactors = F)
       }
     }
+    packageStartupMessage(".", appendLF = F)
+    
   }
   column_names <- unlist(lapply(c(names(dataRaw[[1]])), 
                                 function(x) return(x)))
   colnames(result) <- column_names
+  packageStartupMessage(" Processed ",length(result$id)," rows", appendLF = T)
   return(result)
   
 }

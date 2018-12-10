@@ -101,6 +101,7 @@ TopVisorPos <- function (user_id = NULL, token = NULL, project_id = NULL, date1 
     } else {  
   result <- data.frame(stringsAsFactors = F)
   if (as.character(Sys.Date()) == existDates[[length(existDates)]]) existDates[[length(existDates)]] <- NULL
+  packageStartupMessage("Processing", appendLF = F)
   for (i in 1:length(existDates))
   {
     offset = 0
@@ -134,6 +135,8 @@ TopVisorPos <- function (user_id = NULL, token = NULL, project_id = NULL, date1 
         result <- rbind(result, c(existDates[[i]],dataRaw[[ii]]$id,dataRaw[[ii]]$name,dataRaw[[ii]]$group_id,dataRaw[[ii]]$group_name,gsub(".*:","",names(dataRaw[[ii]]$positionsData[iii])),dataRaw[[ii]]$positionsData[[iii]]),stringsAsFactors = F)
       }
     }
+    packageStartupMessage(".", appendLF = F)
+    
    }
   }
   colnames(result) <- c("date","id","name","group_id","group_name","region_index","position")
@@ -143,7 +146,7 @@ TopVisorPos <- function (user_id = NULL, token = NULL, project_id = NULL, date1 
   #  regions$region_key <- as.integer(regions$region_key)
   result <-merge.data.frame(result, regions, by = c("region_index"))
   result$position <- gsub("--",NA,result$position)
-  packageStartupMessage("Processed ",length(result$position)," rows", appendLF = T)
+  packageStartupMessage(" Processed ",length(result$position)," rows", appendLF = T)
   return(result)
   
     }
