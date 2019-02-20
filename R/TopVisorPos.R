@@ -37,6 +37,7 @@ TopVisorPos <- function (user_id = NULL, token = NULL, project_id = NULL, date1 
   answer <- POST("https://api.topvisor.com/v2/json/get/projects_2/projects",
                  body = body, add_head)
   dataRaw <- content(answer, "parsed", "application/json")
+  return(dataRaw)
   result <- data.frame(stringsAsFactors = F)
   dataRaw <- dataRaw$result
   # if (dataRaw[[1]]$searchers[[1]]$searcher==0) {
@@ -110,7 +111,7 @@ TopVisorPos <- function (user_id = NULL, token = NULL, project_id = NULL, date1 
   {    
     body = toJSON(
       list(
-        fields = c("id","name","group_id","group_name","device"),
+        fields = c("id","name","group_id","group_name"),
         project_id = project_id,
         regions_indexes = list_of_regions,
         dates = list(existDates[[i]],existDates[[i]]),
@@ -123,7 +124,6 @@ TopVisorPos <- function (user_id = NULL, token = NULL, project_id = NULL, date1 
     answer <- POST("https://api.topvisor.com/v2/json/get/positions_2/history",
                    body = body, add_head)
     dataRaw <- content(answer, "parsed", "application/json")
-    return(dataRaw)
     if (length(dataRaw)==3) offset <- dataRaw$nextOffset
     ldr <- length(dataRaw)
     dataRaw <- dataRaw$result$keywords
