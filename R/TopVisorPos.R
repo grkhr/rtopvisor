@@ -123,6 +123,7 @@ TopVisorPos <- function (user_id = NULL, token = NULL, project_id = NULL, date1 
     answer <- POST("https://api.topvisor.com/v2/json/get/positions_2/history",
                    body = body, add_head)
     dataRaw <- content(answer, "parsed", "application/json")
+    return(dataRaw)
     if (length(dataRaw)==3) offset <- dataRaw$nextOffset
     ldr <- length(dataRaw)
     dataRaw <- dataRaw$result$keywords
