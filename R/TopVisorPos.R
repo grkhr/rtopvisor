@@ -19,16 +19,6 @@
 #' @examples
 #' TopVisorPos()
 
-library(httr)
-library(rjson)
-library(data.table)
-
-user_id = "29761"
-token = "f04d5d05699088103a03"
-project_id = "2402037"
-date1 = Sys.Date() - 1
-date2 = Sys.Date() - 1
-
 TopVisorPos <- function (user_id = NULL, token = NULL, project_id = NULL, date1 = NULL, date2 = NULL)
 {
   library(data.table)
