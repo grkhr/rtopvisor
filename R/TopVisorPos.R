@@ -14,10 +14,20 @@
 #' @importFrom httr add_headers
 #' @importFrom rjson toJSON
 #' @importFrom rjson fromJSON
+#' @importFrom mgsub mgsub
 #' @import data.table
 #' @examples
 #' TopVisorPos()
 
+library(httr)
+library(rjson)
+library(data.table)
+
+user_id = "29761"
+token = "f04d5d05699088103a03"
+project_id = "2402037"
+date1 = Sys.Date() - 1
+date2 = Sys.Date() - 1
 
 TopVisorPos <- function (user_id = NULL, token = NULL, project_id = NULL, date1 = NULL, date2 = NULL)
 {
@@ -54,7 +64,7 @@ TopVisorPos <- function (user_id = NULL, token = NULL, project_id = NULL, date1 
     }
   colnames(result) <- c("searcher_key","searcher_name","region_key","region_name","region_index","device")
   regions <- result
-  regions_keys <- subset(as.data.frame(unique(as.data.table(result), by = "region_key")), select = c("region_key","region_name","index"))
+  regions_keys <- subset(as.data.frame(unique(as.data.table(result), by = "region_key")), select = c("region_key","region_name","device"))
   searchers <- subset(as.data.frame(unique(as.data.table(result), by = "searcher_key")), select = c("searcher_key","searcher_name"))
   
   datex = as.character(Sys.Date()-10000)
@@ -145,6 +155,7 @@ TopVisorPos <- function (user_id = NULL, token = NULL, project_id = NULL, date1 
   # result$region_id <- as.integer(result$region_id)
   #  regions$region_key <- as.integer(regions$region_key)
   result <-merge.data.frame(result, regions, by = c("region_index"))
+  result$device <- mgsub(result$device, list(0,1,2), list("Desktop","Tablet","Mobile"))
   result$position <- gsub("--",NA,result$position)
   packageStartupMessage("",appendLF = T)
   packageStartupMessage(" Processed ",length(result$position)," rows", appendLF = T)
