@@ -37,7 +37,6 @@ TopVisorPos <- function (user_id = NULL, token = NULL, project_id = NULL, date1 
   answer <- POST("https://api.topvisor.com/v2/json/get/projects_2/projects",
                  body = body, add_head)
   dataRaw <- content(answer, "parsed", "application/json")
-  return(dataRaw)
   result <- data.frame(stringsAsFactors = F)
   dataRaw <- dataRaw$result
   # if (dataRaw[[1]]$searchers[[1]]$searcher==0) {
@@ -51,11 +50,11 @@ TopVisorPos <- function (user_id = NULL, token = NULL, project_id = NULL, date1 
   for (i in 1:length(dataRaw[[1]]$searchers))
     for (ii in 1:length(dataRaw[[1]]$searchers[[i]]$regions))
     {
-      result <- rbind(result, c(dataRaw[[1]]$searchers[[i]]$searcher,dataRaw[[1]]$searchers[[i]]$name,dataRaw[[1]]$searchers[[i]]$regions[[ii]]$key,dataRaw[[1]]$searchers[[i]]$regions[[ii]]$name,dataRaw[[1]]$searchers[[i]]$regions[[ii]]$index), stringsAsFactors = F)
+      result <- rbind(result, c(dataRaw[[1]]$searchers[[i]]$searcher,dataRaw[[1]]$searchers[[i]]$name,dataRaw[[1]]$searchers[[i]]$regions[[ii]]$key,dataRaw[[1]]$searchers[[i]]$regions[[ii]]$name,dataRaw[[1]]$searchers[[i]]$regions[[ii]]$index,dataRaw[[1]]$searchers[[i]]$regions[[ii]]$device), stringsAsFactors = F)
     }
-  colnames(result) <- c("searcher_key","searcher_name","region_key","region_name","region_index")
+  colnames(result) <- c("searcher_key","searcher_name","region_key","region_name","region_index","device")
   regions <- result
-  regions_keys <- subset(as.data.frame(unique(as.data.table(result), by = "region_key")), select = c("region_key","region_name"))
+  regions_keys <- subset(as.data.frame(unique(as.data.table(result), by = "region_key")), select = c("region_key","region_name","index"))
   searchers <- subset(as.data.frame(unique(as.data.table(result), by = "searcher_key")), select = c("searcher_key","searcher_name"))
   
   datex = as.character(Sys.Date()-10000)
