@@ -110,7 +110,7 @@ TopVisorPos <- function (user_id = NULL, token = NULL, project_id = NULL, date1 
   {    
     body = toJSON(
       list(
-        fields = c("id","name","group_id","group_name"),
+        fields = c("id","name","group_id","group_name","device"),
         project_id = project_id,
         regions_indexes = list_of_regions,
         dates = list(existDates[[i]],existDates[[i]]),
