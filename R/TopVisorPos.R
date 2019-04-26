@@ -22,11 +22,11 @@
 
 # "2018-01-01"
 # date1 = "2018-01-01"
-date1 = "2019-04-14"
-date2 = "2019-04-14"
-user_id = "29761"
-token = "f04d5d05699088103a03"
-project_id = "2402037"
+# date1 = "2019-04-14"
+# date2 = "2019-04-14"
+# user_id = "29761"
+# token = "f04d5d05699088103a03"
+# project_id = "2402037"
 
 TopVisorPos <- function (user_id = NULL, token = NULL, project_id = NULL, date1 = NULL, date2 = NULL)
 {
