@@ -22,8 +22,8 @@
 
 # "2018-01-01"
 # date1 = "2018-01-01"
-date1 = Sys.Date() - 30
-date2 = Sys.Date() - 3
+date1 = "2019-04-14"
+date2 = "2019-04-14"
 user_id = "29761"
 token = "f04d5d05699088103a03"
 project_id = "2402037"
@@ -90,7 +90,7 @@ TopVisorPos <- function (user_id = NULL, token = NULL, project_id = NULL, date1 
                    body = body, add_head)
     dataRaw <- content(answer, "parsed", "application/json")
     existDates <- dataRaw$result$existsDates
-
+    def.existDates <- existDates
     if (as.integer(difftime(as.Date(existDates[[1]]),as.Date(date1))) < 0) {
       exx <- as.data.frame(unlist(existDates))
       colnames(exx) <- c("name")
@@ -99,12 +99,16 @@ TopVisorPos <- function (user_id = NULL, token = NULL, project_id = NULL, date1 
       colnames(exx) <- c("name")
       existDates <- subset(existDates,as.integer(difftime(as.Date(exx[["name"]]),as.Date(date2))) <= 0)
     }
+    existDates <- lapply(existDates, as.Date)
+    def.existDates <- lapply(def.existDates, as.Date)
+    seq.existDates <- seq(def.existDates[[1]],def.existDates[[length(def.existDates)]], by = "day")
 
-    if (length(existDates) == 0) {
+    if (!(as.Date(date1) %in% seq.existDates | as.Date(date2) %in% seq.existDates)) {
       packageStartupMessage("DATES ARE NOT RIGHT OR NO MONEY FOR YESTERDAY", appendLF = T)
       return (NULL)
     } else {
   result <- data.frame(stringsAsFactors = F)
+  if (length(existDates) == 0) return (result)
  # if (as.character(Sys.Date()) == existDates[[length(existDates)]]) existDates[[length(existDates)]] <- NULL
   packageStartupMessage("Processing", appendLF = F)
   for (i in 1:length(existDates))
