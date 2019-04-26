@@ -4,3 +4,6 @@
 .DS_Store
 man/.Rapp.history
 .DS_Store
+.httr-oauth
+.DS_Store
+.Rbuildignore
