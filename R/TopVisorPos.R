@@ -23,6 +23,7 @@
 # "2018-01-01"
 # date1 = "2018-01-01"
 
+
 TopVisorPos <- function (user_id = NULL, token = NULL, project_id = NULL, date1 = NULL, date2 = NULL)
 {
   library(data.table)
@@ -90,9 +91,11 @@ TopVisorPos <- function (user_id = NULL, token = NULL, project_id = NULL, date1 
       exx <- as.data.frame(unlist(existDates))
       colnames(exx) <- c("name")
       existDates <- subset(existDates,as.integer(difftime(as.Date(exx[["name"]]),as.Date(date1))) >= 0)
-      exx <- as.data.frame(unlist(existDates))
-      colnames(exx) <- c("name")
-      existDates <- subset(existDates,as.integer(difftime(as.Date(exx[["name"]]),as.Date(date2))) <= 0)
+      if (length(existDates)) {
+        exx <- as.data.frame(unlist(existDates))
+        colnames(exx) <- c("name")
+        existDates <- subset(existDates,as.integer(difftime(as.Date(exx[["name"]]),as.Date(date2))) <= 0)
+      }
     }
     existDates <- lapply(existDates, as.Date)
     def.existDates <- lapply(def.existDates, as.Date)
