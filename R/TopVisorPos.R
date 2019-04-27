@@ -103,7 +103,7 @@ TopVisorPos <- function (user_id = NULL, token = NULL, project_id = NULL, date1 
 
     if (!(as.Date(date1) %in% seq.existDates | as.Date(date2) %in% seq.existDates)) {
       packageStartupMessage("DATES ARE NOT RIGHT OR NO MONEY FOR YESTERDAY", appendLF = T)
-      return (NULL)
+      return (data.frame())
     } else {
   existDates <- lapply(existDates, as.character)
   result <- data.frame(stringsAsFactors = F)
