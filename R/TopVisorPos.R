@@ -15,7 +15,7 @@
 #' @importFrom rjson toJSON
 #' @importFrom rjson fromJSON
 #' @importFrom mgsub mgsub
-#' @import data.table as.data.table
+#' @importFrom data.table as.data.table
 #' @examples
 #' TopVisorPos()
 
