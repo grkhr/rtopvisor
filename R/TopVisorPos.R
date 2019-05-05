@@ -152,6 +152,6 @@ TopVisorPos <- function (user_id = NULL, token = NULL, project_id = NULL, date1 
   result$device <- mgsub(result$device, list(0,1,2), list("Desktop","Tablet","Mobile"))
   result$position <- gsub("--", NA, result$position)
   packageStartupMessage("", appendLF = T)
-  packageStartupMessage("Processed ", length(result$position), " rows for ", length(existDates), " existing days. ", round(as.numeric(Sys.time() - st), 2), "sec. elapsed." appendLF = T)
+  packageStartupMessage("Processed ", length(result$position), " rows for ", length(existDates), " existing days. ", round(as.numeric(Sys.time() - st), 2), " sec. elapsed." appendLF = T)
   return(result)
 }
