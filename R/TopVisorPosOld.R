@@ -15,17 +15,22 @@
 #' @importFrom rjson toJSON
 #' @importFrom rjson fromJSON
 #' @importFrom mgsub mgsub
-#' @import data.table as.data.table
+#' @import data.table
 #' @examples
-#' TopVisorPos()
+#' TopVisorPosOld()
 
-TopVisorPos <- function (user_id = NULL, token = NULL, project_id = NULL, date1 = NULL, date2 = NULL)
+
+# "2018-01-01"
+# date1 = "2018-01-01"
+
+
+TopVisorPosOld <- function (user_id = NULL, token = NULL, project_id = NULL, date1 = NULL, date2 = NULL)
 {
+  library(data.table)
   token <- paste0("bearer ", token)
   date1 = as.character(date1)
   date2 = as.character(date2)
 
-  # geting searcher's and region's keys
   body = toJSON(
     list(
       fields = c("id","name","site"),
@@ -39,6 +44,13 @@ TopVisorPos <- function (user_id = NULL, token = NULL, project_id = NULL, date1 
   dataRaw <- content(answer, "parsed", "application/json")
   result <- data.frame(stringsAsFactors = F)
   dataRaw <- dataRaw$result
+  # if (dataRaw[[1]]$searchers[[1]]$searcher==0) {
+  #   Ysearcher <- dataRaw[[1]]$searchers[[1]]
+  #   Gsearcher <- dataRaw[[1]]$searchers[[2]]
+  # } else {
+  #   Ysearcher <- dataRaw[[1]]$searchers[[2]]
+  #   Gsearcher <- dataRaw[[1]]$searchers[[1]]
+  # }
 
   for (i in 1:length(dataRaw[[1]]$searchers))
     for (ii in 1:length(dataRaw[[1]]$searchers[[i]]$regions)) {
@@ -49,10 +61,11 @@ TopVisorPos <- function (user_id = NULL, token = NULL, project_id = NULL, date1 
   regions_keys <- subset(as.data.frame(unique(as.data.table(result), by = "region_key")), select = c("region_key","region_name","device"))
   searchers <- subset(as.data.frame(unique(as.data.table(result), by = "searcher_key")), select = c("searcher_key","searcher_name"))
 
-  # getting exist stat dates in project
-  datex = as.character(Sys.Date() - 10000)
-  datey = as.character(Sys.Date() - 1)
+  datex = as.character(Sys.Date()-10000)
+  datey = as.character(Sys.Date()-1)
 
+  #offset = 0
+  #ldr = 3
   list_of_regions <- list()
   for (i in 1:length(regions[[1]])) {
     list_of_regions[i] <- as.integer(regions$region_index[[i]])
@@ -63,6 +76,8 @@ TopVisorPos <- function (user_id = NULL, token = NULL, project_id = NULL, date1 
         regions_indexes = list_of_regions,
         dates = list(datex,datey),
         show_exists_dates = "1"
+      #  limit = 10000,
+      #  offset = offset
       )
     )
 
@@ -71,46 +86,36 @@ TopVisorPos <- function (user_id = NULL, token = NULL, project_id = NULL, date1 
                    body = body, add_head)
     dataRaw <- content(answer, "parsed", "application/json")
     existDates <- dataRaw$result$existsDates
-
-    # check dates
-    if (length(existDates) == 0) {
-      packageStartupMessage('No stats for chosen period or some troubles with payment, check your account.')
-      return(data.frame())
+    def.existDates <- existDates
+    if (as.integer(difftime(as.Date(existDates[[1]]),as.Date(date1))) < 0) {
+      exx <- as.data.frame(unlist(existDates))
+      colnames(exx) <- c("name")
+      existDates <- subset(existDates,as.integer(difftime(as.Date(exx[["name"]]),as.Date(date1))) >= 0)
+      if (length(existDates)) {
+        exx <- as.data.frame(unlist(existDates))
+        colnames(exx) <- c("name")
+        existDates <- subset(existDates,as.integer(difftime(as.Date(exx[["name"]]),as.Date(date2))) <= 0)
+      }
     }
-
     existDates <- lapply(existDates, as.Date)
-    date1 = as.Date(date1)
-    date2 = as.Date(date2)
-    edsec <- seq(existDates[[1]], existDates[[length(existDates)]], by = "day")
+    def.existDates <- lapply(def.existDates, as.Date)
+    seq.existDates <- seq(def.existDates[[1]],def.existDates[[length(def.existDates)]], by = "day")
 
-    # cut list of existDates
-    if ((date1 %in% edsec) & (date2 %in% edsec)) {
-      existDates <- existDates[(existDates >= date1) & (existDates <= date2)]
-    } else if (date1 %in% edsec) {
-      existDates <- existDates[(existDates >= date1)]
-    } else if (date2 %in% edsec) {
-      existDates <- existDates[(existDates <= date2)]
+    if (!(as.Date(date1) %in% seq.existDates | as.Date(date2) %in% seq.existDates)) {
+      packageStartupMessage("DATES ARE NOT RIGHT OR NO MONEY FOR YESTERDAY", appendLF = T)
+      return (data.frame())
     } else {
-      packageStartupMessage('No stats for chosen period.')
-      return(data.frame())
-    }
-
-  # check if existDates is empty
-  if (length(existDates) == 0) {
-    packageStartupMessage('No stats for chosen period.')
-    return(data.frame())
-  }
   existDates <- lapply(existDates, as.character)
   result <- data.frame(stringsAsFactors = F)
   if (length(existDates) == 0) return (result)
  # if (as.character(Sys.Date()) == existDates[[length(existDates)]]) existDates[[length(existDates)]] <- NULL
-  packageStartupMessage("Ready to process the stats from ",existDates[[1]]," to ",existDates[[length(existDates)]]," for existing days.", appendLF = T)
   packageStartupMessage("Processing", appendLF = F)
   for (i in 1:length(existDates))
   {
+  #  print(i)
     offset = 0
     ldr = 3
-  while (ldr == 3)
+  while (ldr==3)
   {
     body = toJSON(
       list(
@@ -130,27 +135,30 @@ TopVisorPos <- function (user_id = NULL, token = NULL, project_id = NULL, date1 
     if (length(dataRaw) == 3) offset <- dataRaw$nextOffset
     ldr <- length(dataRaw)
     dataRaw <- dataRaw$result$keywords
-    result1 <- data.frame()
     for (ii in 1:length(dataRaw))
     {
       for (iii in 1:length(dataRaw[[ii]]$positionsData))
       {
-        result1 <- unname(result1)
+        result <- unname(result)
         if (!is.null(names(dataRaw[[ii]]$positionsData[iii])))
-        result1 <- rbind(result1, c(existDates[[i]],dataRaw[[ii]]$id,dataRaw[[ii]]$name,dataRaw[[ii]]$group_id,dataRaw[[ii]]$group_name, gsub(".*:", "", names(dataRaw[[ii]]$positionsData[iii])),dataRaw[[ii]]$positionsData[[iii]]),stringsAsFactors = F)
+        result <- rbind(result, c(existDates[[i]],dataRaw[[ii]]$id,dataRaw[[ii]]$name,dataRaw[[ii]]$group_id,dataRaw[[ii]]$group_name,gsub(".*:","",names(dataRaw[[ii]]$positionsData[iii])),dataRaw[[ii]]$positionsData[[iii]]),stringsAsFactors = F)
       }
     }
-    colnames(result1) <- c("date","id","name","group_id","group_name","region_index","position")
-    result <- rbind(result, result1)
     packageStartupMessage(".", appendLF = F)
+
    }
   }
   colnames(result) <- c("date","id","name","group_id","group_name","region_index","position")
 
-  result <- merge.data.frame(result, regions, by = c("region_index"))
+
+  # result$region_id <- as.integer(result$region_id)
+  #  regions$region_key <- as.integer(regions$region_key)
+  result <-merge.data.frame(result, regions, by = c("region_index"))
   result$device <- mgsub(result$device, list(0,1,2), list("Desktop","Tablet","Mobile"))
-  result$position <- gsub("--", NA, result$position)
-  packageStartupMessage("", appendLF = T)
-  packageStartupMessage("Processed ", length(result$position), " rows for ", length(existDates), " existing days.", appendLF = T)
+  result$position <- gsub("--",NA,result$position)
+  packageStartupMessage("",appendLF = T)
+  packageStartupMessage(" Processed ",length(result$position)," rows", appendLF = T)
   return(result)
+
+    }
 }
