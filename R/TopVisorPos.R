@@ -84,16 +84,8 @@ TopVisorPos <- function (user_id = NULL, token = NULL, project_id = NULL, date1 
     date2 = as.Date(date2)
     edsec <- seq(existDates[[1]], existDates[[length(existDates)]], by = "day")
 
-    # cut list of existDates
-    if ((date1 %in% edsec) & (date2 %in% edsec)) {
-      existDates <- existDates[(existDates >= date1) & (existDates <= date2)]
-    } else if (date1 %in% edsec) {
-      existDates <- existDates[(existDates >= date1)]
-    } else if (date2 %in% edsec) {
-      existDates <- existDates[(existDates <= date2)]
-    } else {
-      existDates <- existDates[(existDates >= date1) & (existDates <= date2)]
-    }
+  # cut list of existDates
+  existDates <- existDates[(existDates >= date1) & (existDates <= date2)]
 
   # check if existDates is empty
   if (length(existDates) == 0) {
