@@ -7,6 +7,7 @@
 #' @param date1 Date from
 #' @param date2 Date till
 #' @export
+#' @import data.table
 #' @importFrom httr POST
 #' @importFrom httr GET
 #' @importFrom httr stop_for_status
@@ -15,7 +16,6 @@
 #' @importFrom rjson toJSON
 #' @importFrom rjson fromJSON
 #' @importFrom mgsub mgsub
-#' @importFrom data.table as.data.table
 #' @examples
 #' TopVisorPos()
 
