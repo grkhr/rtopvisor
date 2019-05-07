@@ -98,12 +98,10 @@ TopVisorPos <- function (user_id = NULL, token = NULL, project_id = NULL, date1 
  # if (as.character(Sys.Date()) == existDates[[length(existDates)]]) existDates[[length(existDates)]] <- NULL
   packageStartupMessage("Ready to process the stats from ",existDates[[1]]," to ",existDates[[length(existDates)]]," for existing days.", appendLF = T)
   packageStartupMessage("Processing", appendLF = F)
-  for (i in 1:length(existDates))
-  {
+  for (i in 1:length(existDates)) {
     offset = 0
     ldr = 3
-  while (ldr == 3)
-  {
+  while (ldr == 3) {
     body = toJSON(
       list(
         fields = c("id","name","group_id","group_name"),
@@ -123,10 +121,8 @@ TopVisorPos <- function (user_id = NULL, token = NULL, project_id = NULL, date1 
     ldr <- length(dataRaw)
     dataRaw <- dataRaw$result$keywords
     result1 <- data.frame()
-    for (ii in 1:length(dataRaw))
-    {
-      for (iii in 1:length(dataRaw[[ii]]$positionsData))
-      {
+    for (ii in 1:length(dataRaw)) {
+      for (iii in 1:length(dataRaw[[ii]]$positionsData)) {
         result1 <- unname(result1)
         if (!is.null(names(dataRaw[[ii]]$positionsData[iii])))
         result1 <- rbind(result1, c(existDates[[i]],dataRaw[[ii]]$id,dataRaw[[ii]]$name,dataRaw[[ii]]$group_id,dataRaw[[ii]]$group_name, gsub(".*:", "", names(dataRaw[[ii]]$positionsData[iii])),dataRaw[[ii]]$positionsData[[iii]]),stringsAsFactors = F)
