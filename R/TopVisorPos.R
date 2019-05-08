@@ -58,31 +58,31 @@ TopVisorPos <- function (user_id = NULL, token = NULL, project_id = NULL, date1 
   for (i in 1:length(regions[[1]])) {
     list_of_regions[i] <- as.integer(regions$region_index[[i]])
   }
-    body = toJSON(
-      list(
-        project_id = project_id,
-        regions_indexes = list_of_regions,
-        dates = list(datex,datey),
-        show_exists_dates = "1"
-      )
+  body = toJSON(
+    list(
+      project_id = project_id,
+      regions_indexes = list_of_regions,
+      dates = list(datex,datey),
+      show_exists_dates = "1"
     )
+  )
 
-    add_head <- add_headers(.headers = c("Content-Type"="application/json","User-Id"=user_id,"Authorization"=token))
-    answer <- POST("https://api.topvisor.com/v2/json/get/positions_2/history",
-                   body = body, add_head)
-    dataRaw <- content(answer, "parsed", "application/json")
-    existDates <- dataRaw$result$existsDates
+  add_head <- add_headers(.headers = c("Content-Type"="application/json","User-Id"=user_id,"Authorization"=token))
+  answer <- POST("https://api.topvisor.com/v2/json/get/positions_2/history",
+                 body = body, add_head)
+  dataRaw <- content(answer, "parsed", "application/json")
+  existDates <- dataRaw$result$existsDates
 
-    # check dates
-    if (length(existDates) == 0) {
-      packageStartupMessage('No stats for chosen period or some troubles with payment, check your account.')
-      return(data.frame())
-    }
+  # check dates
+  if (length(existDates) == 0) {
+    packageStartupMessage('No stats for chosen period or some troubles with payment, check your account.')
+    return(data.frame())
+  }
 
-    existDates <- lapply(existDates, as.Date)
-    date1 = as.Date(date1)
-    date2 = as.Date(date2)
-    edsec <- seq(existDates[[1]], existDates[[length(existDates)]], by = "day")
+  existDates <- lapply(existDates, as.Date)
+  date1 = as.Date(date1)
+  date2 = as.Date(date2)
+  edsec <- seq(existDates[[1]], existDates[[length(existDates)]], by = "day")
 
   # cut list of existDates
   existDates <- existDates[(existDates >= date1) & (existDates <= date2)]
@@ -95,43 +95,80 @@ TopVisorPos <- function (user_id = NULL, token = NULL, project_id = NULL, date1 
   existDates <- lapply(existDates, as.character)
   result <- data.frame(stringsAsFactors = F)
   if (length(existDates) == 0) return (result)
- # if (as.character(Sys.Date()) == existDates[[length(existDates)]]) existDates[[length(existDates)]] <- NULL
-  packageStartupMessage("Ready to process the stats from ",existDates[[1]]," to ",existDates[[length(existDates)]]," for existing days.", appendLF = T)
+  # if (as.character(Sys.Date()) == existDates[[length(existDates)]]) existDates[[length(existDates)]] <- NULL
+  packageStartupMessage("Ready to process the stats from ", existDates[[1]], " to ", existDates[[length(existDates)]], " for ", length(existDates), " existing days.", appendLF = T)
+
+  # CHECK TIME______________________________________________________________________
+  st1 = Sys.time()
+  offset = 0
+  ldr = 3
+  body = toJSON(
+    list(
+      fields = c("id","name","group_id","group_name"),
+      project_id = project_id,
+      regions_indexes = list_of_regions,
+      dates = list(existDates[[1]],existDates[[1]]),
+      type_range = 0,
+      limit = 10000,
+      offset = offset
+    )
+  )
+  add_head <- add_headers(.headers = c("Content-Type"="application/json","User-Id"=user_id,"Authorization"=token))
+  answer <- POST("https://api.topvisor.com/v2/json/get/positions_2/history",
+                 body = body, add_head)
+  dataRaw <- content(answer, "parsed", "application/json")
+  if (length(dataRaw) == 3) offset <- dataRaw$nextOffset
+  ldr <- length(dataRaw)
+  dataRaw <- dataRaw$result$keywords
+  result1 <- data.frame()
+  for (ii in 1:length(dataRaw)) {
+    for (iii in 1:length(dataRaw[[ii]]$positionsData)) {
+      result1 <- unname(result1)
+      if (!is.null(names(dataRaw[[ii]]$positionsData[iii])))
+        result1 <- rbind(result1, c(existDates[[1]],dataRaw[[ii]]$id,dataRaw[[ii]]$name,dataRaw[[ii]]$group_id,dataRaw[[ii]]$group_name, gsub(".*:", "", names(dataRaw[[ii]]$positionsData[iii])),dataRaw[[ii]]$positionsData[[iii]]),stringsAsFactors = F)
+    }
+  }
+  st1 <- Sys.time() - st1
+  #print(st1)
+  # CHECK TIME______________________________________________________________________
+
+
+  packageStartupMessage("Approximate time of processing is ", round(as.numeric(length(existDates) * st1 * 1.5), 2), " seconds.", appendLF = T)
   packageStartupMessage("Processing", appendLF = F)
   for (i in 1:length(existDates)) {
     offset = 0
     ldr = 3
-  while (ldr == 3) {
-    body = toJSON(
-      list(
-        fields = c("id","name","group_id","group_name"),
-        project_id = project_id,
-        regions_indexes = list_of_regions,
-        dates = list(existDates[[i]],existDates[[i]]),
-        type_range = 0,
-        limit = 10000,
-        offset = offset
+    while (ldr == 3) {
+      body = toJSON(
+        list(
+          fields = c("id","name","group_id","group_name"),
+          project_id = project_id,
+          regions_indexes = list_of_regions,
+          dates = list(existDates[[i]],existDates[[i]]),
+          type_range = 0,
+          limit = 10000,
+          offset = offset
+        )
       )
-    )
-    add_head <- add_headers(.headers = c("Content-Type"="application/json","User-Id"=user_id,"Authorization"=token))
-    answer <- POST("https://api.topvisor.com/v2/json/get/positions_2/history",
-                   body = body, add_head)
-    dataRaw <- content(answer, "parsed", "application/json")
-    if (length(dataRaw) == 3) offset <- dataRaw$nextOffset
-    ldr <- length(dataRaw)
-    dataRaw <- dataRaw$result$keywords
-    result1 <- data.frame()
-    for (ii in 1:length(dataRaw)) {
-      for (iii in 1:length(dataRaw[[ii]]$positionsData)) {
-        result1 <- unname(result1)
-        if (!is.null(names(dataRaw[[ii]]$positionsData[iii])))
-        result1 <- rbind(result1, c(existDates[[i]],dataRaw[[ii]]$id,dataRaw[[ii]]$name,dataRaw[[ii]]$group_id,dataRaw[[ii]]$group_name, gsub(".*:", "", names(dataRaw[[ii]]$positionsData[iii])),dataRaw[[ii]]$positionsData[[iii]]),stringsAsFactors = F)
+      add_head <- add_headers(.headers = c("Content-Type"="application/json","User-Id"=user_id,"Authorization"=token))
+      answer <- POST("https://api.topvisor.com/v2/json/get/positions_2/history",
+                     body = body, add_head)
+      dataRaw <- content(answer, "parsed", "application/json")
+      if (length(dataRaw) == 3) offset <- dataRaw$nextOffset
+      ldr <- length(dataRaw)
+      dataRaw <- dataRaw$result$keywords
+      result1 <- data.frame()
+      for (ii in 1:length(dataRaw)) {
+        for (iii in 1:length(dataRaw[[ii]]$positionsData)) {
+          result1 <- unname(result1)
+          if (!is.null(names(dataRaw[[ii]]$positionsData[iii])))
+            result1 <- rbind(result1, c(existDates[[i]],dataRaw[[ii]]$id,dataRaw[[ii]]$name,dataRaw[[ii]]$group_id,dataRaw[[ii]]$group_name, gsub(".*:", "", names(dataRaw[[ii]]$positionsData[iii])),dataRaw[[ii]]$positionsData[[iii]]),stringsAsFactors = F)
+        }
       }
+      colnames(result1) <- c("date","id","name","group_id","group_name","region_index","position")
+      result <- rbind(result, result1)
+      packageStartupMessage(".", appendLF = F)
     }
-    colnames(result1) <- c("date","id","name","group_id","group_name","region_index","position")
-    result <- rbind(result, result1)
-    packageStartupMessage(".", appendLF = F)
-   }
   }
   colnames(result) <- c("date","id","name","group_id","group_name","region_index","position")
 
