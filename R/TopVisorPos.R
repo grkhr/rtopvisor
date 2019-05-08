@@ -133,7 +133,7 @@ TopVisorPos <- function (user_id = NULL, token = NULL, project_id = NULL, date1 
   # CHECK TIME______________________________________________________________________
 
 
-  packageStartupMessage("Approximate time of processing is ", round(as.numeric(length(existDates) * st1 * 1.5), 2), " seconds.", appendLF = T)
+  packageStartupMessage("Approximate time of processing is ", round(as.numeric(length(existDates) * st1), 0), " - ", round(as.numeric(length(existDates) * st1 * 1.5), 0), " seconds.", appendLF = T)
   packageStartupMessage("Processing", appendLF = F)
   for (i in 1:length(existDates)) {
     offset = 0
